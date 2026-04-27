@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>쑤기의 신나는 가위바위보</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      background: linear-gradient(160deg, #fff4c9, #ffd6e0, #d8f5ff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #2d3436;
+      padding: 18px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 430px;
+      min-height: 92vh;
+      background: rgba(255, 255, 255, 0.88);
+      border-radius: 30px;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.18);
+      padding: 24px 18px;
+      text-align: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #ff7675;
+      color: white;
+      font-weight: 800;
+      padding: 7px 14px;
+      border-radius: 999px;
+      font-size: 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 5px 12px rgba(255, 118, 117, 0.3);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      line-height: 1.25;
+      color: #3b2f2f;
+    }
+
+    .subtitle {
+      margin: 10px 0 18px;
+      font-size: 15px;
+      color: #7f4f24;
+      font-weight: 600;
+    }
+
+    .arena {
+      background: #fff8e8;
+      border: 3px solid #ffeaa7;
+      border-radius: 26px;
+      padding: 18px 12px;
+      margin: 18px 0;
+    }
+
+    .result {
+      min-height: 36px;
+      font-size: 24px;
+      font-weight: 900;
+      color: #d35400;
+      margin-bottom: 14px;
+    }
+
+    .versus {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 8px;
+      align-items: center;
+      margin: 14px 0;
+    }
+
+    .player-card {
+      background: white;
+      border-radius: 22px;
+      padding: 14px 8px;
+      box-shadow: 0 7px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .label {
+      font-size: 13px;
+      color: #636e72;
+      font-weight: 800;
+    }
+
+    .hand {
+      font-size: 48px;
+      margin: 6px 0;
+      min-height: 58px;
+    }
+
+    .choice-name {
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    .vs {
+      font-size: 18px;
+      font-weight: 900;
+      color: #e17055;
+    }
+
+    .comment {
+      min-height: 24px;
+      font-size: 15px;
+      font-weight: 800;
+      color: #7f4f24;
+      margin-top: 12px;
+    }
+
+    .buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .choice-btn {
+      border: 0;
+      border-radius: 24px;
+      background: linear-gradient(180deg, #ffeaa7, #fdcb6e);
+      color: #2d3436;
+      font-size: 17px;
+      font-weight: 900;
+      padding: 16px 6px;
+      box-shadow: 0 8px 0 #e1a733, 0 12px 22px rgba(0, 0, 0, 0.14);
+      cursor: pointer;
+      transition: transform 0.08s ease, box-shadow 0.08s ease;
+    }
+
+    .choice-btn span {
+      display: block;
+      font-size: 36px;
+      margin-bottom: 5px;
+    }
+
+    .choice-btn:active {
+      transform: translateY(6px);
+      box-shadow: 0 2px 0 #e1a733, 0 6px 12px rgba(0, 0, 0, 0.14);
+    }
+
+    .score {
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 16px;
+      margin-top: 18px;
+      box-shadow: inset 0 0 0 2px #f1f2f6;
+    }
+
+    .score-title {
+      font-size: 18px;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .score-item {
+      background: #f7f7f7;
+      border-radius: 16px;
+      padding: 10px 4px;
+    }
+
+    .score-number {
+      font-size: 22px;
+      font-weight: 900;
+      color: #0984e3;
+    }
+
+    .score-label {
+      font-size: 12px;
+      font-weight: 800;
+      color: #636e72;
+    }
+
+    .reset-btn {
+      margin-top: 16px;
+      border: 0;
+      border-radius: 999px;
+      background: #ff7675;
+      color: white;
+      padding: 13px 22px;
+      font-size: 16px;
+      font-weight: 900;
+      box-shadow: 0 8px 18px rgba(255, 118, 117, 0.32);
+      cursor: pointer;
+    }
+
+    .shake {
+      animation: shake 0.45s ease;
+    }
+
+    .pop {
+      animation: pop 0.35s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-6px); }
+      80% { transform: translateX(6px); }
+    }
+
+    @keyframes pop {
+      0% { transform: scale(1); }
+      45% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+
+    .confetti {
+      position: fixed;
+      top: -20px;
+      font-size: 22px;
+      animation: fall 1.4s linear forwards;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(105vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    .tip {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #636e72;
+      line-height: 1.45;
+    }
+  </style>
+</head>
+<body>
+  <main class="app" id="app">
+    <div class="badge">MOBILE GAME</div>
+    <h1>🎮 쑤기의<br />신나는 가위바위보</h1>
+    <p class="subtitle">이기면 꽹과리! 지면 북소리! 무승부는 띵동!</p>
+
+    <section class="arena" id="arena">
+      <div class="result" id="result">준비됐나요? 😎</div>
+
+      <div class="versus">
+        <div class="player-card">
+          <div class="label">나</div>
+          <div class="hand" id="userHand">❔</div>
+          <div class="choice-name" id="userChoice">선택 전</div>
+        </div>
+
+        <div class="vs">VS</div>
+
+        <div class="player-card">
+          <div class="label">컴퓨터</div>
+          <div class="hand" id="computerHand">❔</div>
+          <div class="choice-name" id="computerChoice">대기 중</div>
+        </div>
+      </div>
+
+      <div class="comment" id="comment">아래 버튼을 눌러 한판 붙어보세요!</div>
+    </section>
+
+    <section class="buttons">
+      <button class="choice-btn" onclick="playGame('가위')"><span>✌️</span>가위</button>
+      <button class="choice-btn" onclick="playGame('바위')"><span>✊</span>바위</button>
+      <button class="choice-btn" onclick="playGame('보')"><span>🖐️</span>보</button>
+    </section>
+
+    <section class="score">
+      <div class="score-title">🏆 현재 전적</div>
+      <div class="score-grid">
+        <div class="score-item">
+          <div class="score-number" id="roundScore">0</div>
+          <div class="score-label">전체</div>
+        </div>
+        <div class="score-item">
+          <div class="score-number" id="winScore">0</div>
+          <div class="score-label">승리</div>
+        </div>
+        <div class="score-item">
+          <div class="score-number" id="loseScore">0</div>
+          <div class="score-label">패배</div>
+        </div>
+        <div class="score-item">
+          <div class="score-number" id="drawScore">0</div>
+          <div class="score-label">무승부</div>
+        </div>
+      </div>
+
+      <button class="reset-btn" onclick="resetGame()">🔄 점수 초기화</button>
+    </section>
+
+    <p class="tip">소리가 안 나면 휴대폰 무음 모드를 해제하고, 첫 터치 후 다시 플레이해보세요.</p>
+  </main>
+
+  <script>
+    const choices = ["가위", "바위", "보"];
+
+    const emoji = {
+      "가위": "✌️",
+      "바위": "✊",
+      "보": "🖐️"
+    };
+
+    const winCases = {
+      "가위": "보",
+      "바위": "가위",
+      "보": "바위"
+    };
+
+    let round = 0;
+    let win = 0;
+    let lose = 0;
+    let draw = 0;
+
+    let audioContext = null;
+
+    function getAudioContext() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      return audioContext;
+    }
+
+    function playSound(type) {
+      const ctx = getAudioContext();
+      const now = ctx.currentTime;
+
+      if (type === "win") {
+        // 꽹과리 느낌: 높은 금속성 소리
+        for (let i = 0; i < 4; i++) {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+
+          osc.type = i % 2 === 0 ? "square" : "sawtooth";
+          osc.frequency.setValueAtTime(760 + i * 170, now);
+          osc.frequency.exponentialRampToValueAtTime(420 + i * 100, now + 0.45);
+
+          gain.gain.setValueAtTime(0.18 / (i + 1), now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.58);
+        }
+      }
+
+      if (type === "lose") {
+        // 북소리 느낌: 낮은 둥 소리
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(150, now);
+        osc.frequency.exponentialRampToValueAtTime(55, now + 0.42);
+
+        gain.gain.setValueAtTime(0.45, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.48);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.5);
+      }
+
+      if (type === "draw") {
+        // 띵동 느낌
+        playTone(520, 0.13, now);
+        playTone(650, 0.18, now + 0.15);
+      }
+    }
+
+    function playTone(freq, duration, startTime) {
+      const ctx = getAudioContext();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, startTime);
+
+      gain.gain.setValueAtTime(0.22, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(startTime);
+      osc.stop(startTime + duration);
+    }
+
+    function judgeWinner(user, computer) {
+      if (user === computer) return "draw";
+      if (winCases[user] === computer) return "win";
+      return "lose";
+    }
+
+    function playGame(userChoice) {
+      const computerChoice = choices[Math.floor(Math.random() * choices.length)];
+      const result = judgeWinner(userChoice, computerChoice);
+
+      round++;
+
+      document.getElementById("userHand").textContent = emoji[userChoice];
+      document.getElementById("userChoice").textContent = userChoice;
+      document.getElementById("computerHand").textContent = emoji[computerChoice];
+      document.getElementById("computerChoice").textContent = computerChoice;
+
+      const resultEl = document.getElementById("result");
+      const commentEl = document.getElementById("comment");
+      const arena = document.getElementById("arena");
+
+      arena.classList.remove("shake", "pop");
+      void arena.offsetWidth;
+
+      if (result === "win") {
+        win++;
+        resultEl.textContent = "🎉 이겼다! 쑤기 최고!";
+        resultEl.style.color = "#e17055";
+        commentEl.textContent = "꽹과리 울려라! 꽹꽹꽹~ 🥳";
+        arena.classList.add("pop");
+        playSound("win");
+        makeConfetti();
+      } else if (result === "lose") {
+        lose++;
+        resultEl.textContent = "😭 졌다... 컴퓨터가 강했다!";
+        resultEl.style.color = "#0984e3";
+        commentEl.textContent = "북소리 둥둥... 다음 판은 이기자! 🥁";
+        arena.classList.add("shake");
+        playSound("lose");
+      } else {
+        draw++;
+        resultEl.textContent = "😆 무승부! 다시 한판!";
+        resultEl.style.color = "#636e72";
+        commentEl.textContent = "둘이 통했다! 운명의 라이벌인가요? ✨";
+        arena.classList.add("pop");
+        playSound("draw");
+      }
+
+      updateScore();
+    }
+
+    function updateScore() {
+      document.getElementById("roundScore").textContent = round;
+      document.getElementById("winScore").textContent = win;
+      document.getElementById("loseScore").textContent = lose;
+      document.getElementById("drawScore").textContent = draw;
+    }
+
+    function resetGame() {
+      round = 0;
+      win = 0;
+      lose = 0;
+      draw = 0;
+
+      document.getElementById("result").textContent = "다시 시작! 준비됐나요? 😎";
+      document.getElementById("result").style.color = "#d35400";
+      document.getElementById("comment").textContent = "아래 버튼을 눌러 한판 붙어보세요!";
+      document.getElementById("userHand").textContent = "❔";
+      document.getElementById("userChoice").textContent = "선택 전";
+      document.getElementById("computerHand").textContent = "❔";
+      document.getElementById("computerChoice").textContent = "대기 중";
+
+      updateScore();
+      playSound("draw");
+    }
+
+    function makeConfetti() {
+      const items = ["🎉", "✨", "🥳", "💛", "⭐"];
+      for (let i = 0; i < 18; i++) {
+        const confetti = document.createElement("div");
+        confetti.className = "confetti";
+        confetti.textContent = items[Math.floor(Math.random() * items.length)];
+        confetti.style.left = Math.random() * 100 + "vw";
+        confetti.style.animationDelay = Math.random() * 0.25 + "s";
+        document.body.appendChild(confetti);
+
+        setTimeout(() => {
+          confetti.remove();
+        }, 1700);
+      }
+    }
+  </script>
+</body>
+</html>
